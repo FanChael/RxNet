@@ -1,5 +1,7 @@
 package com.hl.rxnettest;
 
+import android.util.Log;
+
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
@@ -19,6 +21,7 @@ public class ToStringConverterFactory  extends Converter.Factory {
             return new Converter<ResponseBody, String>() {
                 @Override
                 public String convert(ResponseBody value) throws IOException {
+                    Log.e("test", "responseBodyConverter");
                     return value.string();
                 }
             };
@@ -28,10 +31,12 @@ public class ToStringConverterFactory  extends Converter.Factory {
 
     @Override public Converter<?, RequestBody> requestBodyConverter(Type type, Annotation[] parameterAnnotations,
                                                                     Annotation[] methodAnnotations, Retrofit retrofit) {
+        Log.e("test", type.toString());
         if (String.class.equals(type)) {
             return new Converter<String, RequestBody>() {
                 @Override
                 public RequestBody convert(String value) throws IOException {
+                    Log.e("test", "requestBodyConverter convert value=" + value);
                     return RequestBody.create(MEDIA_TYPE, value);
                 }
             };

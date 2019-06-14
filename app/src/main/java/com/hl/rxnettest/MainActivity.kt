@@ -3,9 +3,11 @@ package com.hl.rxnettest
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import com.google.gson.Gson
 import kotlinx.android.synthetic.main.activity_main.*
 import okhttp3.ResponseBody
 import retrofit2.*
+import retrofit2.converter.gson.GsonConverterFactory
 
 /**
  * 2019.06.13 - 2019.06.xx - 主要是本地实践使用Rx，暂时未开始封装到库
@@ -26,8 +28,12 @@ class MainActivity : AppCompatActivity() {
                 // 无需解析 -> 方式0
                 // Json解析 -> 方式1
                 // .addConverterFactory(GsonConverterFactory.create())
+                // Json解析 -> 方式1-自定义解析
+                // .addConverterFactory(MGsonConverterFactory(Gson()))
                 // 字符串解析 -> 方式2
-                // .addConverterFactory(ToStringConverterFactory())
+                .addConverterFactory(ToStringConverterFactory())
+                // AdapterFactory????
+                //.addCallAdapterFactory()
                 // 设置网络请求地址
                 .baseUrl("https://api.github.com/")
                 .build()
@@ -40,6 +46,7 @@ class MainActivity : AppCompatActivity() {
         // var repos = gitHubService.listRepos("FanChael")
         // var response = repos.execute()
 
+        /*
         // 方式0： 创建网络请求接口实例 - 返回ResponseBody结果,response.body()?.string()自己进行解析
         var reposResponseBody = gitHubService.listReposResponseBody("FanChael")
         reposResponseBody.enqueue(object : Callback<ResponseBody>{ // object的作用是调用内部匿名类
@@ -55,16 +62,16 @@ class MainActivity : AppCompatActivity() {
             override fun onFailure(call: Call<ResponseBody>, t: Throwable){
                 Log.e("reposResponseBody-f", t.message)
             }
-        })
+        })*/
 
-        /*
         // 方式1： 创建网络请求接口实例 - 返回字符串结果
-        var reposString = gitHubService.listReposString("FanChael")
+        // var reposString = gitHubService.listReposString("FanChael")
+        var reposString = gitHubService.listReposString("FanChael", "s-requestBodyConverter")
         reposString.enqueue(object : Callback<String>{ // object的作用是调用内部匿名类
             override fun onResponse(call: Call<String>, response: Response<String>){
                 if (response.isSuccessful) {
                     // response.body() -> String
-                    Log.e("reposString-onResponse", response.body())
+                    // Log.e("reposString-onResponse", response.body())
                 } else {
                     Log.e("reposString-onResponse", "请求错误了！")
                 }
@@ -72,7 +79,7 @@ class MainActivity : AppCompatActivity() {
             override fun onFailure(call: Call<String>, t: Throwable){
                 Log.e("reposString-onFailure", t.message)
             }
-        })*/
+        })
 
         /*
         // 方式2： 创建网络请求接口实例 - Gson解析后返回对象列表
