@@ -18,10 +18,11 @@ public class ToStringConverterFactory  extends Converter.Factory {
     @Override
     public Converter<ResponseBody, ?> responseBodyConverter(Type type, Annotation[] annotations, Retrofit retrofit) {
         if (String.class.equals(type)) {
+            Log.e("test3", "type=" + type);
             return new Converter<ResponseBody, String>() {
                 @Override
                 public String convert(ResponseBody value) throws IOException {
-                    Log.e("test", "responseBodyConverter");
+                    Log.e("test3", "responseBodyConverter");
                     return value.string();
                 }
             };
@@ -31,12 +32,11 @@ public class ToStringConverterFactory  extends Converter.Factory {
 
     @Override public Converter<?, RequestBody> requestBodyConverter(Type type, Annotation[] parameterAnnotations,
                                                                     Annotation[] methodAnnotations, Retrofit retrofit) {
-        Log.e("test", type.toString());
         if (String.class.equals(type)) {
             return new Converter<String, RequestBody>() {
                 @Override
                 public RequestBody convert(String value) throws IOException {
-                    Log.e("test", "requestBodyConverter convert value=" + value);
+                    Log.e("test3", "requestBodyConverter convert value=" + value);
                     return RequestBody.create(MEDIA_TYPE, value);
                 }
             };

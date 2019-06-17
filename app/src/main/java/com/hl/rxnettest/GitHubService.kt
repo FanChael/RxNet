@@ -22,6 +22,9 @@ interface GitHubService {
     @POST("users/{user}/repos")
     fun listReposString(@Path("user") user: String, @Body data: String): Call<String>
 
+    @POST("users/{user}/repos")
+    fun listReposStringCustomCall(@Path("user") user: String, @Body data: String): CustomCall<String>
+
     // 添加GsonConverterFactory解析器 - 返回Json解析的对象列表
     @GET("users/{user}/repos")
     fun listRepos(@Path("user") user: String): Call<List<Repo>>

@@ -7,6 +7,7 @@ import com.google.gson.Gson
 import kotlinx.android.synthetic.main.activity_main.*
 import okhttp3.ResponseBody
 import retrofit2.*
+import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
 
 /**
@@ -32,8 +33,9 @@ class MainActivity : AppCompatActivity() {
                 // .addConverterFactory(MGsonConverterFactory(Gson()))
                 // 字符串解析 -> 方式2
                 .addConverterFactory(ToStringConverterFactory())
-                // AdapterFactory????
-                //.addCallAdapterFactory()
+                // RxJavaCallAdapterFactory? -> 跳过去看哈源码，顺便模仿一下怎么自定义呀！
+                // https://www.jianshu.com/p/6d58723323a4
+                .addCallAdapterFactory(CustomCallAdapterFactory.create())
                 // 设置网络请求地址
                 .baseUrl("https://api.github.com/")
                 .build()
@@ -66,7 +68,7 @@ class MainActivity : AppCompatActivity() {
 
         // 方式1： 创建网络请求接口实例 - 返回字符串结果
         // var reposString = gitHubService.listReposString("FanChael")
-        var reposString = gitHubService.listReposString("FanChael", "s-requestBodyConverter")
+        /*var reposString = gitHubService.listReposString("FanChael", "s-requestBodyConverter")
         reposString.enqueue(object : Callback<String>{ // object的作用是调用内部匿名类
             override fun onResponse(call: Call<String>, response: Response<String>){
                 if (response.isSuccessful) {
@@ -78,6 +80,26 @@ class MainActivity : AppCompatActivity() {
             }
             override fun onFailure(call: Call<String>, t: Throwable){
                 Log.e("reposString-onFailure", t.message)
+            }
+        })*/
+
+        // 自定义CustomCallAdapterFactory，类似RxJavaCallAdapterFactory，针对线程切换进行了优雅的处理！
+        var reposStringCustomCall = gitHubService.listReposStringCustomCall("FanChael", "s-requestBodyConverter")
+        // 直接获取数据
+        var result = reposStringCustomCall.get();
+        Log.e("CustomCall", "result=" + result);
+        // CustomCall增加异步获取数据的方法enqueue->内部就是调用了Call的异步方法而已
+        reposStringCustomCall.enqueue(object : Callback<String>{
+            override fun onResponse(call: Call<String>, response: Response<String>){
+                if (response.isSuccessful) {
+                    // response.body() -> String
+                    // Log.e("reposString-onResponse", response.body())
+                } else {
+                    Log.e("CustomCall-onResponse", "请求错误了！")
+                }
+            }
+            override fun onFailure(call: Call<String>, t: Throwable){
+                Log.e("CustomCall-onFailure", t.message)
             }
         })
 
