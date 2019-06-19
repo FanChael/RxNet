@@ -1,5 +1,6 @@
 package com.hl.rxnettest
 
+import io.reactivex.Observable
 import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.http.Body
@@ -28,4 +29,7 @@ interface GitHubService {
     // 添加GsonConverterFactory解析器 - 返回Json解析的对象列表
     @GET("users/{user}/repos")
     fun listRepos(@Path("user") user: String): Call<List<Repo>>
+
+    @GET("users/{user}/repos")
+    fun listReposStringRxJavaObservable(@Path("user") user: String): Observable<List<Repo>>
 }
