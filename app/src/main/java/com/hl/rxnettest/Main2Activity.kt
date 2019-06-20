@@ -278,17 +278,24 @@ class Main2Activity : AppCompatActivity() {
         gitCall.subscribeOn(Schedulers.io()) // 指定上游一个子线程
                 .observeOn(AndroidSchedulers.mainThread()) // 指定下游UI/主main线程
                 // 创建一个动态键的 observable 映射。 如果你不但想对一个特定项的更改做出反应，而且对添加或删除该项也做出反应的话，那么 observable 映射会非常有用
-                .map { t ->
-                    // lambda表达式样式呀
-                    Log.e("observable", "map thread'name=" + Thread.currentThread().name)
-                    var userList: MutableList<Repo> = ArrayList()
-                    for (item in t) {
-                        if (item.name?.contains("banner")!!) {
-                            userList.add(item)
-                        }
+                //                .map { t ->
+                //                    // lambda表达式样式呀
+                //                    Log.e("observable", "map thread'name=" + Thread.currentThread().name)
+                //                    var userList: MutableList<Repo> = ArrayList()
+                //                    for (item in t) {
+                //                        if (item.name?.contains("banner")!!) {
+                //                            userList.add(item)
+                //                        }
+                //                    }
+                //                    userList
+                //                }
+                .flatMap(object: Function < List<Repo>, ObservableSource <List<Repo>> >{
+                    override fun apply(t: List<Repo>): ObservableSource<List<Repo>> {
+                        Log.e("observable", "flatMap thread'name=" + Thread.currentThread().name)
+                        // 中间也可以进行一些处理，不过flatmap可以将事件序列中的元素进行整合加工，返回一个新的被观察者
+                        return Observable.fromArray(t)
                     }
-                    userList
-                }
+                })
                 .subscribe(object : Observer<List<Repo>> {
                     override fun onComplete() {
                     }
