@@ -54,15 +54,13 @@ class Main3Activity : AppCompatActivity() {
         // let'start
         gitCall.subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io()) // 由于请求结果还需要拿来再做一次网络请求，因此我们再次放到io下线程中处理
-                .flatMap(object: Function<List<Repo>, ObservableSource<List<Repo>>>{
-                    override fun apply(t: List<Repo>): ObservableSource<List<Repo>> {
-                        // 在进行一次请求 - 小萌新就将就重复调用了
-                        // TODO t可以拿来作为再次请求时的的参数
-                        Log.e("observable apply1", t.get(0).name)
-                        Log.e("observable", "flatMap thread'name=" + Thread.currentThread().name)
-                        return gitHubService.listReposStringRxJavaObservable("FanChael")
-                    }
-                })
+                .flatMap { t ->
+                    // 在进行一次请求 - 小萌新就将就重复调用了
+                    // TODO t可以拿来作为再次请求时的的参数
+                    Log.e("observable apply1", t.get(0).name)
+                    Log.e("observable", "flatMap thread'name=" + Thread.currentThread().name)
+                    gitHubService.listReposStringRxJavaObservable("FanChael")
+                }
                 .observeOn(Schedulers.io())  // 还可以指定一个io线程, 用map的形式进行预处理
                 .map(object: Function<List<Repo>, List<Repo>>{
                     override fun apply(t: List<Repo>): List<Repo> {
