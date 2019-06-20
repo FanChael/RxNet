@@ -26,6 +26,7 @@ import io.reactivex.ObservableEmitter
 import io.reactivex.ObservableOnSubscribe
 import io.reactivex.disposables.Disposable
 import io.reactivex.functions.Function
+import okhttp3.Request
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 
@@ -35,7 +36,7 @@ class Main2Activity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // 布局都不依赖了 - 有时候可以打开用下控件啥的
-        // setContentView(R.layout.activity_main2)
+        setContentView(R.layout.activity_main2)
         // setContentView(View(this))
 /*
         // 1. 创建Retroft实例对象
@@ -273,15 +274,16 @@ class Main2Activity : AppCompatActivity() {
         var gitCall = gitHubService.listReposStringRxJavaObservable("FanChael");
 
         // 4. RxJava请求走起
-        var ds: Disposable ? = null
+        var ds: Disposable? = null
         gitCall.subscribeOn(Schedulers.io()) // 指定上游一个子线程
                 .observeOn(AndroidSchedulers.mainThread()) // 指定下游UI/主main线程
                 // 创建一个动态键的 observable 映射。 如果你不但想对一个特定项的更改做出反应，而且对添加或删除该项也做出反应的话，那么 observable 映射会非常有用
-                .map { t ->  // lambda表达式样式呀
+                .map { t ->
+                    // lambda表达式样式呀
                     Log.e("observable", "map thread'name=" + Thread.currentThread().name)
                     var userList: MutableList<Repo> = ArrayList()
-                    for (item in t){
-                        if (item.name?.contains("banner")!!){
+                    for (item in t) {
+                        if (item.name?.contains("banner")!!) {
                             userList.add(item)
                         }
                     }
@@ -297,6 +299,19 @@ class Main2Activity : AppCompatActivity() {
                     }
 
                     override fun onNext(t: List<Repo>) {
+                        // UI线程规定不能进行耗时的操作，但是不一定耗时都会引起ANR；只要不影响UI渲染的卡顿，不一定会引起ANR
+                        // Thread.sleep(100000)
+                        /* UI线程中不能进行 okhttp同步请求
+                        val client = OkHttpClient.Builder()
+                                .build();
+                        val request = Request.Builder().url("http://www.baidu.com").get().build()
+                        val requestCall = client.newCall(request)
+                        val response = requestCall.execute()
+                        if (response.isSuccessful()) {
+                            val json = response.body()?.string();
+                            Log.e("observable", "json=" + json)
+                        } */
+
                         Toast.makeText(this@Main2Activity, "OJBK", Toast.LENGTH_SHORT).show()
                         Log.e("observable", "thread'name=" + Thread.currentThread().name)
                         for (item in t) {
